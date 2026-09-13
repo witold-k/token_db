@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Witold Kaminski
+
 #[cfg(test)]
 mod tests {
     use token_db::token_db::TokenDB;

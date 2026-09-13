@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Witold Kaminski
+
 use rustc_hash::FxHashMap;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -34,6 +37,7 @@ impl TokenDB {
         self.map.get(name).map(|(_, idx)| &self.list[*idx])
     }
 
+    #[cfg(feature = "test-support")]
     #[doc(hidden)]
     pub fn clear_internal_map_for_testing(&mut self) {
         self.map.clear();

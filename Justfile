@@ -7,7 +7,7 @@ default: build
 
 build:
     cargo build
-    RUST_BACKTRACE=1 cargo test
+    RUST_BACKTRACE=1 cargo test --features test-support
     cargo clippy
 
 clean:
