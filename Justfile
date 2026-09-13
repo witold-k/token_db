@@ -1,7 +1,8 @@
 # user_name        := env("USER")
 # current_location := justfile()
-# current_dir      := justfile_directory()
+current_dir      := justfile_directory()
 # module_name      := file_name(current_dir)
+target_dir       := `cargo metadata --no-deps --format-version=1 | jq -r '.target_directory'`
 
 default: build
 
@@ -13,8 +14,10 @@ build:
 clean:
 	cargo clean
 
+install-cover:
+    cargo install cargo-llvm-cov
+
 cover:
-	CARGO_INCREMENTAL=0 RUSTFLAGS='-Cinstrument-coverage' LLVM_PROFILE_FILE='target/coverage/cargo-test-%p-%m.profraw' cargo test
-	grcov . --binary-path ./target/debug/deps/ -s . -t html --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o target/coverage/html
-	firefox target/coverage/html/index.html
+	cargo llvm-cov --features test-support --html
+	links2 {{target_dir}}/llvm-cov/html/index.html
 
