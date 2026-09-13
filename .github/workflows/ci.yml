@@ -30,7 +30,7 @@ jobs:
         run: cargo build --verbose
 
       - name: Run test suite
-        run: cargo test --verbose
+        run: cargo test --features test-support --verbose
 
       - name: Run code linter
         run: cargo clippy -- -D warnings
@@ -39,35 +39,29 @@ jobs:
   coverage:
     name: Test Coverage
     runs-on: ubuntu-latest
+  
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7 
-
+        uses: actions/checkout@v7
+  
       - name: Set up Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
           components: llvm-tools-preview
-
-      - name: Install grcov
-        run: cargo install grcov
-
-      - name: Generate profile data
-        env:
-          CARGO_INCREMENTAL: "0"
-          RUSTFLAGS: "-Cinstrument-coverage"
-          LLVM_PROFILE_FILE: "target/coverage/cargo-test-%p-%m.profraw"
-        run: cargo test
-
-      - name: Process report with grcov
-        run: |
-          mkdir -p target/coverage/html
-          grcov . --binary-path ./target/debug/deps/ -s . -t html --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o target/coverage/html
-
-      - name: Upload coverage report artifact
-        uses: actions/upload-artifact@v7 
+  
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@v2.87.8
+        with:
+          tool: cargo-llvm-cov@0.9.1
+  
+      - name: Generate coverage report
+        run: cargo llvm-cov --features test-support --html --output-dir target/coverage/html
+  
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: target/coverage/html/
-          retention-days: 1
-
+          retention-days: 7
+  
