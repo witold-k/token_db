@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Witold Kaminski
+
 use std::sync::Arc;
-
 use rustc_hash::FxHashMap;
-
 use crate::{Error, Result};
 
 /// Stable numeric identifier assigned to a token.
