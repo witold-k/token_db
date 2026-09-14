@@ -30,7 +30,7 @@ jobs:
         run: cargo build --verbose
 
       - name: Run test suite
-        run: cargo test --features test-support --verbose
+        run: cargo test --verbose
 
       - name: Run code linter
         run: cargo clippy -- -D warnings
@@ -56,7 +56,7 @@ jobs:
           tool: cargo-llvm-cov@0.9.1
   
       - name: Generate coverage report
-        run: cargo llvm-cov --features test-support --html --output-dir target/coverage/html
+        run: cargo llvm-cov --html --output-dir target/coverage/html
   
       - name: Upload coverage report
         uses: actions/upload-artifact@v7
