@@ -2,7 +2,6 @@
 name = "token_db"
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.85"
 description = "A small token database with stable IDs, frequency counts, merging, and binary persistence."
 license = "Apache-2.0"
 repository = "https://github.com/witold-k/token_db"
@@ -11,15 +10,14 @@ keywords = ["token", "database", "frequency", "nlp"]
 categories = ["data-structures", "encoding"]
 
 [dependencies]
-# -- serializer --------------------------------------------------------------
+# -- serializer + fileio -----------------------------------------------------
 serde = { version = "1.0", features = ["derive", "rc"] }
 postcard = { version = "1.1.3", features = ["alloc"] }
+tempfile = "3"
 
 # -- storage crates ----------------------------------------------------------
 rustc-hash = "2.1"
 
 struct_extractors = { version = "0.1.0", git = "https://github.com/witold-k/struct_extractors" }
 
-[dev-dependencies]
-tempfile = "3"
 

@@ -1,13 +1,12 @@
 use std::fs;
-use std::io::Write;
+use std::io::{BufWriter, Write};
 use std::path::Path;
 use std::sync::Arc;
-
 use serde::{Deserialize, Serialize};
 
 use crate::{Result, TokenDb, TokenEntry};
 
-const MAGIC: &[u8; 4] = b"TDB1";
+const MAGIC: &[u8; 8] = b"TOKENDB1";
 
 #[derive(Serialize)]
 struct StoredDb<'a> {
@@ -75,21 +74,54 @@ impl TokenDb {
         Self::from_entries(entries)
     }
 
-    /// Saves the database to `path` using a temporary file in the same directory.
-    pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
-        let path = path.as_ref();
-        let parent = path.parent().filter(|parent| !parent.as_os_str().is_empty()).unwrap_or(Path::new("."));
-        let mut temporary = tempfile::NamedTempFile::new_in(parent)?;
-        temporary.write_all(&self.to_bytes()?)?;
-        temporary.as_file().sync_all()?;
-        temporary
-            .persist(path)
-            .map_err(|error| crate::Error::Io(error.error))?;
+    /// Writes the database to `writer` using the token_db binary format.
+    pub fn write_to<W: Write>(&self, mut writer: W) -> Result<()> {
+        writer.write_all(MAGIC)?;
+
+        let stored = StoredDb {
+            entries: self
+                .entries
+                .iter()
+                .map(|entry| StoredEntryRef {
+                    text: entry.text(),
+                    count: entry.count(),
+                })
+                .collect(),
+        };
+
+        postcard::to_io(&stored, &mut writer)?;
+
         Ok(())
     }
 
-    /// Loads a database from `path`.
-    pub fn load(path: impl AsRef<Path>) -> Result<Self> {
-        Self::from_bytes(&fs::read(path)?)
+    /// Saves the database to `path`.
+    ///
+    /// The new database is written to a temporary file in the same directory
+    /// and replaces the destination only after the write completes.
+    pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
+        let path = path.as_ref();
+
+        let parent = path
+            .parent()
+            .filter(|parent| !parent.as_os_str().is_empty())
+            .unwrap_or(Path::new("."));
+
+        let mut temporary = tempfile::NamedTempFile::new_in(parent)?;
+
+        {
+            let mut writer = BufWriter::new(temporary.as_file_mut());
+
+            self.write_to(&mut writer)?;
+
+            writer.flush()?;
+        }
+
+        temporary.as_file().sync_all()?;
+
+        temporary
+            .persist(path)
+            .map_err(|error| crate::Error::Io(error.error))?;
+
+        Ok(())
     }
 }
