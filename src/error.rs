@@ -15,8 +15,6 @@ pub enum Error {
     DuplicateToken(String),
     /// An I/O operation failed.
     Io(io::Error),
-    /// Binary encoding or decoding failed.
-    Codec(postcard::Error),
 }
 
 /// Result type used by `token_db`.
@@ -32,7 +30,6 @@ impl fmt::Display for Error {
                 write!(f, "invalid token database: duplicate token {token:?}")
             }
             Self::Io(error) => write!(f, "I/O error: {error}"),
-            Self::Codec(error) => write!(f, "serialization error: {error}"),
         }
     }
 }
@@ -41,7 +38,6 @@ impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::Io(error) => Some(error),
-            Self::Codec(error) => Some(error),
             _ => None,
         }
     }
@@ -53,8 +49,3 @@ impl From<io::Error> for Error {
     }
 }
 
-impl From<postcard::Error> for Error {
-    fn from(error: postcard::Error) -> Self {
-        Self::Codec(error)
-    }
-}
