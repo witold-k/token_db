@@ -1,6 +1,6 @@
 [package]
 name = "token_db"
-version = "0.2.0"
+version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
 description = "A small token database with stable IDs, frequency counts, merging, and binary persistence."
