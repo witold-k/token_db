@@ -4,6 +4,31 @@ A small Rust library for storing unique tokens, tracking their frequency, assign
 
 The API is intentionally small. There is no compatibility layer for the pre-0.2 API.
 
+## Responsibility
+
+`token_db` represents a token lookup database. Its responsibility is deliberately
+limited to:
+
+- assigning a stable `TokenId` to each unique token in a database;
+- tracking occurrence counts;
+- looking up tokens by ID or text;
+- merging one `TokenDb` into another and returning the local-to-merged ID mapping;
+- persisting and loading `TokenDb` data in the versioned `.tdb` binary format.
+
+A `TokenDb` does **not** represent the ordered token sequence of a document.
+It stores each unique token once, together with its occurrence count, so document
+order and individual repetitions cannot be reconstructed from a `TokenDb`.
+
+Consequently, ordered document token streams such as `.tok` files are outside
+this crate's responsibility. Their representation and persistence belong to the
+pipeline or component that needs document order. `token_db` must not gain
+`.tok` persistence merely because those streams contain `TokenId` values.
+
+A document-local `.tdb` and a corpus-wide `.tdb` use the same `TokenDb`
+representation. The difference is their scope: a document database contains
+tokens and counts for one document, while a corpus database is produced by
+merging document databases with `TokenDb::merge`.
+
 ## Example
 
 ```rust
