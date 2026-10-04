@@ -5,12 +5,13 @@ use std::sync::Arc;
 use rustc_hash::FxHashMap;
 use crate::{Error, Result};
 
-/// Stable numeric identifier assigned to a token.
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+/// Stable zero-based index assigned to a token.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, serde::Deserialize, serde::Serialize)]
+#[serde(transparent)]
 pub struct TokenId(u32);
 
 impl TokenId {
-    /// Returns the underlying integer ID.
+    /// Returns the underlying zero-based `u32` index.
     #[must_use]
     pub const fn get(self) -> u32 {
         self.0

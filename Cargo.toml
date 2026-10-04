@@ -10,6 +10,7 @@ keywords = ["token", "database", "frequency", "nlp"]
 categories = ["data-structures", "encoding"]
 
 [dependencies]
+serde = { version = "1.0", features = ["derive"] }
 # -- serializer + fileio -----------------------------------------------------
 tempfile = "3"
 
